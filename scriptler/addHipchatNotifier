@@ -1,0 +1,25 @@
+/**
+ * Enabling Hipchat Notifications for all jobs
+ */
+def jobs = hudson.model.Hudson.instance.items;
+jobs.each { job ->
+  Boolean hasChuck = false;         
+  for (Iterator publishersItr = job.publishersList.iterator(); publishersItr.hasNext();) {
+    def publisher = publishersItr.next();
+    if(publisher.getClass().toString().matches(".*HipChatNotifier")){
+      hasChuck = true;
+      break;
+    }
+  }
+  println job.getFullName() + (hasChuck ? " has hipchat" : " has NOT hipchat")
+  if(! hasChuck){
+    println "...adding chuck"
+    def walker = new jenkins.plugins.hipchat.HipChatNotifier(
+      "<yourAuthToken>", // authToken
+      "<yourRoom>", // room
+      "<yourBuildServer>", // BuildServer
+      "<yourSendAs>" // sendAs
+    );
+    job.publishersList.add(walker);
+  }
+}
